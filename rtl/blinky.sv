@@ -1,5 +1,5 @@
 
-module blinky import config_pkg::*; #(
+module blinky #(
     parameter int ResetValue = 1_000_000,
     localparam int CountWidth = $clog2(ResetValue)
 ) (

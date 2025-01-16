@@ -1,7 +1,4 @@
-
-dv/dv_pkg.sv
-
-dv/blinky_tb.sv
+dv/uart_tb.sv
 
 --timing
 -j 0
