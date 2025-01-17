@@ -19,7 +19,8 @@ module uart_runner;
   logic [0:0] tx_o, rx_i;
 
   localparam BAUD_RATE = 115200;
-  assign prescale_w = (BAUD_RATE * 8) / 100000;
+  localparam CLK_FREQ_HZ = 33178;
+  assign prescale_w = (BAUD_RATE * 8) / CLK_FREQ_HZ;
 
   uart_tx #(.DATA_WIDTH(8)) model_tx_inst (
     .clk(clk_i),
@@ -50,13 +51,17 @@ module uart_runner;
     rst_i = 0;
   endtask
 
-  task automatic send_stimulus;
-    @(negedge clk_i);
-    tx_valid_i = 1'b1;
-    tx_stim_i = 8'h55; // 01010101
-    repeat(2) begin
+  task automatic wait_cycles(input int cycles);
+    repeat(cycles) begin
       @(negedge clk_i);
     end
+  endtask
+
+  task automatic send_stimulus(input int hex);
+    @(negedge clk_i);
+    tx_valid_i = 1'b1;
+    tx_stim_i = hex[7:0];
+    wait_cycles(2);
     tx_valid_i = 1'b0;
   endtask
 

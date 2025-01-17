@@ -11,7 +11,8 @@ wire [datawidth_p-1:0] data_w;
 wire [0:0] valid_w, ready_w;
 
 localparam BAUD_RATE = 115200;
-assign prescale_w = (BAUD_RATE * 8) / 100000;
+localparam CLK_FREQ_HZ = 33178;
+assign prescale_w = (BAUD_RATE * 8) / CLK_FREQ_HZ;
 
 uart_rx #(.DATA_WIDTH(datawidth_p)) rx_inst (
   .clk(clk_i),
@@ -51,7 +52,5 @@ uart_tx #(.DATA_WIDTH(datawidth_p)) tx_inst (
 
   .prescale(prescale_w) // input, [15:0]
 );
-
-
 
 endmodule

@@ -21,11 +21,11 @@ module uart_tb (
     $display("---- BEGIN SIMULATION ----");
 
     uart_runner.reset();
-    uart_runner.send_stimulus();
-
-    repeat(2000) begin
-      @(posedge uart_runner.clk_i);
-    end
+    uart_runner.wait_cycles(10);
+    uart_runner.send_stimulus(8'h55);
+    uart_runner.wait_cycles(1000);
+    uart_runner.send_stimulus(8'h12);
+    uart_runner.wait_cycles(8000);
 
     if (error) begin
       `FINISH_WITH_FAIL

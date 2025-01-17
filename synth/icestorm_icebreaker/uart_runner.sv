@@ -20,11 +20,11 @@ module uart_runner;
   initial begin
     pll_out = 0;
     forever begin
-      #5ns;  // 100MHz
+      #15.070ns;  // 33.1776Mhz --> 30.1408ns / 2 = 15.0704ns
       pll_out = !pll_out;
     end
   end
-  assign icebreaker.pll.PLLOUTCORE = pll_out;
+  assign icebreaker.pll.PLLOUTGLOBAL = pll_out;
 
   icebreaker icebreaker (
     .CLK(CLK),
@@ -38,7 +38,8 @@ module uart_runner;
   logic [7:0] tx_stim_i;
   logic [0:0] tx_valid_i;
   localparam BAUD_RATE = 115200;
-  assign prescale_w = (BAUD_RATE * 8) / 100000;
+  localparam CLK_FREQ_HZ = 33178;
+  assign prescale_w = (BAUD_RATE * 8) / CLK_FREQ_HZ;
   uart_tx #(.DATA_WIDTH(8)) model_tx_inst (
     .clk(pll_out),
     .rst(BTN_N),
