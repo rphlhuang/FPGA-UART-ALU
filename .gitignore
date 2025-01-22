@@ -6,3 +6,5 @@ __pycache__
 *.fst
 build
 .DS_Store
+.vscode
+venv

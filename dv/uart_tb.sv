@@ -13,6 +13,8 @@ module uart_tb (
   // Runner
   uart_runner uart_runner ();
 
+  logic [7:0] test_data [];
+
   // Testcases
   initial begin
     $dumpfile("dump.fst");
@@ -22,10 +24,13 @@ module uart_tb (
 
     uart_runner.reset();
     uart_runner.wait_cycles(10);
-    uart_runner.send_stimulus(8'h55);
-    uart_runner.wait_cycles(1000);
-    uart_runner.send_stimulus(8'h12);
-    uart_runner.wait_cycles(8000);
+
+    uart_runner.send_byte(8'h55);
+    uart_runner.wait_cycles(5000);
+
+    test_data = '{8'h48, 8'h69}; // "Hi"
+    uart_runner.send_packet(8'hEC, test_data, 16'h0006);
+    uart_runner.wait_cycles(10000);
 
     if (error) begin
       `FINISH_WITH_FAIL

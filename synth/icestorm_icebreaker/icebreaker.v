@@ -26,6 +26,7 @@ SB_PLL40_PAD #(
     .PLLOUTGLOBAL(clk_o)
 );
 
+// use ~BTN_N for bitstream, BTN_N for gls
 wire [0:0] rst_i;
 SB_DFFER sync_inst (.C(clk_o), .R(1'b0), .E(1'b1), .D(~BTN_N), .Q(rst_i));
 
