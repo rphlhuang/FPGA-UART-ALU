@@ -20,7 +20,7 @@ module uart_runner;
   initial begin
     pll_out = 0;
     forever begin
-      #24.6605ns;  // 20.2752 Mhz --> 49.321 ns / 2 = 24.6605ns
+      #24.661ns;  // 20.2752 Mhz --> 49.321 ns / 2 = 24.6605ns
       pll_out = !pll_out;
     end
   end
@@ -59,8 +59,33 @@ module uart_runner;
     .prescale(prescale_w) // input, [15:0]
   );
 
+  // output decoder: rx instance
+  wire [7:0] rx_data_o;
+  wire rx_valid_o;
+  uart_rx #(.DATA_WIDTH(8)) rx_inst (
+    .clk(pll_out),
+    .rst(BTN_N),
+
+    // AXI Stream Interface (serial to parallel, what we work with on FPGA)
+    .m_axis_tdata(rx_data_o), // output, [DATA_WIDTH-1:0]
+    .m_axis_tvalid(rx_valid_o), // output
+    .m_axis_tready(1'b1), // input
+
+    // UART Interface (what the FPGA is recieving, serially)
+    .rxd(TX), // input
+
+    // Status
+    .busy(), // output
+    .overrun_error(), // output
+    .frame_error(), // output
+
+    .prescale(prescale_w) // input, [15:0]
+  );
+
   task automatic reset;
     @(negedge pll_out);
+    tx_valid_i = 1'b0;
+    tx_stim_i = '0;
     BTN_N = 1;
     @(negedge pll_out);
     BTN_N = 0;
@@ -77,7 +102,7 @@ module uart_runner;
     @(negedge pll_out);
     tx_valid_i = 1'b1;
     tx_stim_i = data;
-    wait_cycles(1);
+    wait_cycles(2);
     tx_valid_i = 1'b0;
   endtask
 
@@ -99,6 +124,23 @@ module uart_runner;
       send_byte(data[i][15:8]);
       send_byte(data[i][7:0]);
     end
+  endtask
+
+  task automatic wait_for_response(output logic [31:0] response);
+    logic [7:0] b0, b1, b2, b3;
+
+    $display("Waiting for rx_o...");
+    // big-endian: read MSB first
+    @(posedge rx_valid_o);
+    b3 = rx_data_o;
+    @(posedge rx_valid_o);
+    b2 = rx_data_o;
+    @(posedge rx_valid_o);
+    b1 = rx_data_o;
+    @(posedge rx_valid_o);
+    b0 = rx_data_o;
+
+    response = {b3, b2, b1, b0};
   endtask
 
 endmodule

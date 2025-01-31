@@ -1,0 +1,123 @@
+verilator lint/verilator.vlt --Mdir uart_tb_icestorm_icebreaker_gls_dir -f synth/icestorm_icebreaker/gls.f -f dv/dv.f --binary -Wno-fatal --top uart_tb
+make[1]: Nothing to be done for `default'.
+- V e r i l a t i o n   R e p o r t: Verilator 5.033 devel rev v5.032-15-g76b2ac9cc
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.022 s (elab=0.000, cvt=0.000, bld=0.020); cpu 0.002 s on 1 threads
+./uart_tb_icestorm_icebreaker_gls_dir/Vuart_tb +verilator+rand+reset+2
+---- BEGIN SIMULATION ----
+
+----adder_simple_tests[2]----
+Waiting for rx_o...
+Adding test_data '{'h1, 'h2}  , Got:          3Expected: 3. error_o? 0
+Waiting for rx_o...
+Adding test_data '{'h3, 'h4}  , Got:          7Expected: 7
+
+----multiplier_simple_tests[2]----
+Waiting for rx_o...
+Multiplying test_data '{'h5, 'h6}  , Got:         30Expected: 30
+Waiting for rx_o...
+Multiplying test_data '{'h2, 'h3, 'h270f, 'h4d2, 'hffff}  , Got: 2708101676; Expected: 2708101676
+
+----adder_fuzz_tests[         10]----
+Adding test data '{'hbee958c8, 'h9126e1f0}  with length  2
+Waiting for rx_o...
+PASS: Result = 1343240888, Expected = 1343240888
+
+Adding test data '{'h4ed9e42, 'h513ff3ed, 'hc316a0e6, 'hc2efaa63, 'haa665c87, 'h37149a66, 'hcfe5ce0, 'hc1ca1340}  with length  8
+Waiting for rx_o...
+PASS: Result = 2356626565, Expected = 2356626565
+
+Adding test data '{'hb407b5b, 'hc9054cf3, 'h6d607d39, 'h75676e78, 'h7c902fc6, 'h9b1302a1, 'h713d7065, 'hac9fe12e, 'h1a6d4773, 'haba8bcd8, 'h6c92a1d5, 'h6f3408b1, 'hdad1976a}  with length 13
+Waiting for rx_o...
+PASS: Result = 1765572148, Expected = 1765572148
+
+Adding test data '{'hd66fa630, 'hfd522a15}  with length  2
+Waiting for rx_o...
+PASS: Result = 3552694341, Expected = 3552694341
+
+Adding test data '{'hdcaa954b, 'h7a7015ae, 'h5934a13, 'h942f1f27}  with length  4
+Waiting for rx_o...
+PASS: Result = 4041020467, Expected = 4041020467
+
+Adding test data '{'h213b89fa, 'h35806690, 'h63ae868c, 'hc71a6572, 'h63293a34, 'hd1a2e891, 'h1b62783f, 'h9ae1fef4, 'he29339e9, 'h6cf9f634, 'hfa0bb2d2}  with length 11
+Waiting for rx_o...
+PASS: Result = 3056490863, Expected = 3056490863
+
+Adding test data '{'h9bf5958c, 'h3b065453, 'ha23a31a8, 'ha4c457bb, 'hb32fecf9, 'h1c10a0b6, 'hf29ee1da, 'hc3d9dc3a, 'h3bbd0fe7}  with length  9
+Waiting for rx_o...
+PASS: Result = 3748712172, Expected = 3748712172
+
+Adding test data '{'h7a129b55, 'h3c6bdf87, 'hdc660c06, 'h91454406, 'he9ddafe2, 'h8107cc7a, 'ha8ba0627, 'hac682808}  with length  8
+Waiting for rx_o...
+PASS: Result = 3828446579, Expected = 3828446579
+
+Adding test data '{'h823888f4, 'hdb4c797, 'hd6d38c49}  with length  3
+Waiting for rx_o...
+PASS: Result = 1723915476, Expected = 1723915476
+
+Adding test data '{'h4453a066, 'hc394d9ae, 'h46335186, 'h58298c0e, 'hd0f42621, 'h5556de90, 'h44115964, 'h17587f73}  with length  8
+Waiting for rx_o...
+PASS: Result =  670709040, Expected =  670709040
+
+Adding test data '{'h8ca00a0a, 'h3670a546, 'h4dba48df, 'hb645e3f1, 'h7d58dba5, 'hc5ebee76, 'h8a27c11a, 'h59aa4b30, 'ha7580921, 'h31eba7b3, 'h9eef58c0}  with length 11
+Waiting for rx_o...
+PASS: Result = 1717222425, Expected = 1717222425
+
+
+----multiplier_fuzz_tests[         10]----
+Multiplying test data '{'hc4cd3cf0, 'hd2511b48, 'h2216b82d, 'h8db4a31e, 'ha88466d2, 'h9673688a, 'hcbf52078, 'hd234f925, 'hed255c5d, 'hf2f69f34}  with length 10
+Waiting for rx_o...
+PASS: Result =  937525248, Expected =  937525248
+
+Multiplying test data '{'hf9df03f5, 'h47681807, 'h2bdfa2c8, 'h3c53d576, 'h42132c93, 'he2dd9d1d, 'hd4d3b505}  with length  7
+Waiting for rx_o...
+PASS: Result =  584857776, Expected =  584857776
+
+Multiplying test data '{'h56ddaf34, 'h5889a9d8}  with length  2
+Waiting for rx_o...
+PASS: Result = 1183393760, Expected = 1183393760
+
+Multiplying test data '{'h9f0a256, 'hd3532ce}  with length  2
+Waiting for rx_o...
+PASS: Result = 4179979572, Expected = 4179979572
+
+Multiplying test data '{'hfa0ebbcb, 'hbbd47e2c}  with length  2
+Waiting for rx_o...
+PASS: Result =  135409892, Expected =  135409892
+
+Multiplying test data '{'hc774ac9, 'h939ba55b}  with length  2
+Waiting for rx_o...
+PASS: Result =   72229491, Expected =   72229491
+
+Multiplying test data '{'h8a4918e5, 'h43f461b4}  with length  2
+Waiting for rx_o...
+PASS: Result = 2534950404, Expected = 2534950404
+
+Multiplying test data '{'h606e0eeb, 'haf10b14c, 'hb88125b4}  with length  3
+Waiting for rx_o...
+PASS: Result =  301727184, Expected =  301727184
+
+Multiplying test data '{'ha496e558, 'hd5de6a05, 'h402e2e69, 'hbd106eb7, 'h6103ef7, 'h535da28b}  with length  6
+Waiting for rx_o...
+PASS: Result = 2923597480, Expected = 2923597480
+
+Multiplying test data '{'hcb9564c9, 'h5dace61e, 'hd3355d51, 'h6e151efc, 'h39748441, 'h9c3d50db, 'hc62f9ed4, 'hd30eb1db, 'h315d0acf, 'hcb2ccdfe, 'h2341f56d, 'hb5b8137, 'hda1e860a}  with length 13
+Waiting for rx_o...
+PASS: Result = 1219123584, Expected = 1219123584
+
+Multiplying test data '{'hdf4f6c07, 'h26ce289a, 'hdd8693c3}  with length  3
+Waiting for rx_o...
+PASS: Result = 2521589538, Expected = 2521589538
+
+- dv/uart_tb.sv:124: Verilog $finish
+Simulation time is          67262335000
+[0;32m    ____  ___   __________[0m
+[0;32m   / __ \/   | / ___/ ___/[0m
+[0;32m  / /_/ / /| | \__ \__  [0m
+[0;32m / ____/ ___ |___/ /__/ / [0m
+[0;32m/_/   /_/  |_/____/____/  [0m
+
+Simulation Succeeded!
+- S i m u l a t i o n   R e p o r t: Verilator 5.033 devel
+- Verilator: $finish at 67ms; walltime 24.606 s; speed 2.837 ms/s
+- Verilator: cpu 23.713 s on 1 threads; alloced 0 MB

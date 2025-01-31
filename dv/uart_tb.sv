@@ -18,6 +18,8 @@ module uart_tb (
   logic [7:0] cur_opcode;
   logic [3:0] cur_length;
 
+  localparam NUM_FUZZ_TESTS = 10;
+
   // Testcases
   initial begin
     $dumpfile("dump.fst");
@@ -25,9 +27,9 @@ module uart_tb (
 
     $display("---- BEGIN SIMULATION ----");
 
-    uart_runner.reset();
     error_o = 0;
     test_data = '{};
+    uart_runner.reset();
     uart_runner.wait_cycles(1000);
 
     // uart_runner.send_byte(8'h55);
