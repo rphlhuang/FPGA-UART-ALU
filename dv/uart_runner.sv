@@ -2,7 +2,7 @@
 module uart_runner;
 
   // Clock generator
-  localparam cycle_time_p = 30.08;
+  localparam cycle_time_p = 49.321; // 20.2752 Mhz --> 49.321 ns
   logic [0:0] clk_i, rst_i;
   initial begin
     clk_i = 1'b0;
@@ -16,14 +16,12 @@ module uart_runner;
   wire [15:0] prescale_w;
   logic [7:0] tx_stim_i;
   logic [0:0] tx_valid_i, tx_ready_o;
-  /* verilator lint_off UNUSEDSIGNAL */
   logic [0:0] tx_o, rx_i;
-  /* verilator lint_on UNUSEDSIGNAL */
 
   // baud rate consts
   /* verilator lint_off WIDTHTRUNC */
   localparam BAUD_RATE = 115200;
-  localparam CLK_FREQ_HZ = 33178000;
+  localparam CLK_FREQ_HZ = 20275200; // 20.2752 --> 20275200
   assign prescale_w = (CLK_FREQ_HZ) / (BAUD_RATE * 8);
   /* verilator lint_on WIDTHTRUNC */
 

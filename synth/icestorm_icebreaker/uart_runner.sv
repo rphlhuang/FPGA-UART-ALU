@@ -20,7 +20,7 @@ module uart_runner;
   initial begin
     pll_out = 0;
     forever begin
-      #15.070ns;  // 33.1776Mhz --> 30.1408ns / 2 = 15.0704ns
+      #24.6605ns;  // 20.2752 Mhz --> 49.321 ns / 2 = 24.6605ns
       pll_out = !pll_out;
     end
   end
@@ -37,9 +37,11 @@ module uart_runner;
   wire [15:0] prescale_w;
   logic [7:0] tx_stim_i;
   logic [0:0] tx_valid_i, tx_ready_o;
+  /* verilator lint_off WIDTHTRUNC */
   localparam BAUD_RATE = 115200;
-  localparam CLK_FREQ_HZ = 33178000;
+  localparam CLK_FREQ_HZ = 20275200; // 20.2752 --> 20275200
   assign prescale_w = (CLK_FREQ_HZ) / (BAUD_RATE * 8);
+  /* verilator lint_on WIDTHTRUNC */
 
   uart_tx #(.DATA_WIDTH(8)) model_tx_inst (
     .clk(pll_out),
@@ -75,13 +77,13 @@ module uart_runner;
     @(negedge pll_out);
     tx_valid_i = 1'b1;
     tx_stim_i = data;
-    wait_cycles(2);
+    wait_cycles(1);
     tx_valid_i = 1'b0;
   endtask
 
   task automatic send_packet(
     input logic [7:0] opcode,
-    input logic [7:0] data [],
+    input logic [31:0] data [],
     input logic [15:0] length
   );
     // header
@@ -92,7 +94,10 @@ module uart_runner;
 
     // data
     for (int i = 0; i < data.size(); i++) begin
-      send_byte(data[i]);
+      send_byte(data[i][31:24]);
+      send_byte(data[i][23:16]);
+      send_byte(data[i][15:8]);
+      send_byte(data[i][7:0]);
     end
   endtask
 

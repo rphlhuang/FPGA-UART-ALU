@@ -11,7 +11,7 @@ wire [15:0] prescale_w;
 
 /* verilator lint_off WIDTHTRUNC */
 localparam BAUD_RATE = 115200;
-localparam CLK_FREQ_HZ = 33178000;
+localparam CLK_FREQ_HZ = 20275200; //20.2752 --> 20275200
 assign prescale_w = (CLK_FREQ_HZ) / (BAUD_RATE * 8);
 /* verilator lint_on WIDTHTRUNC */
 

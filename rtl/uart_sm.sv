@@ -21,7 +21,8 @@ module uart_sm #(parameter int datawidth_p = 8)(
 );
 
 // state enum
-typedef enum logic [3:0] {StIdle, StOpCode, StReserved, StLenLSB, StLenMSB, StWaitForFinish, StTransmit0, StTransmit1, StTransmit2, StTransmit3} state_e;state_e state_d, state_q;
+typedef enum logic [3:0] {StIdle, StOpCode, StReserved, StLenLSB, StLenMSB, StWaitForFinish, StTransmit0, StTransmit1, StTransmit2, StTransmit3} state_e;
+state_e state_d, state_q;
 
 // ffs
 logic [datawidth_p-1:0] tx_data_d, tx_data_q;
