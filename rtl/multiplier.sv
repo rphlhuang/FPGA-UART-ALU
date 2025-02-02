@@ -1,5 +1,4 @@
 module multiplier #(
-  parameter int datawidth_p = 8
 ) (
   input clk_i,
   input rst_i,
@@ -18,12 +17,13 @@ typedef enum logic [2:0] {StIdle, StWaitForByte0, StWaitForByte1, StWaitForByte2
 state_e state_d, state_q;
 logic [31:0] cur_operand_d, cur_operand_q;
 logic [15:0] len_cnt_d, len_cnt_q;
-logic bsg_valid_l, bsg_ready_l;
+logic bsg_valid_l, done_l;
+logic [31:0] bsg_opA_l;
 
 always_ff @( posedge clk_i ) begin : ff_mul
   if (rst_i) begin
     state_q <= StIdle;
-    cur_operand_q <= 'x;
+    cur_operand_q <= '0;
     len_cnt_q <= '0;
   end else begin
     state_q <= state_d;
@@ -46,8 +46,10 @@ always_comb begin
         if (start_i) begin
           state_d = StWaitForByte0;
           cur_operand_d = '0;
-          cur_operand_d = data_i[31:24];
+          cur_operand_d[31:24] = data_i;
           len_cnt_d = len_i;
+          bsg_opA_l = 32'd1;
+          done_l = 1'b0;
         end
       end
 
@@ -57,7 +59,7 @@ always_comb begin
         // state transitions
         if (valid_i) begin
           state_d = StWaitForByte1;
-          cur_operand_d = data_i[23:16];
+          cur_operand_d[23:16] = data_i;
         end
       end
 
@@ -67,7 +69,7 @@ always_comb begin
         // state transitions
         if (valid_i) begin
           state_d = StWaitForByte2;
-          cur_operand_d = data_i[15:8];
+          cur_operand_d[15:8] = data_i;
         end
       end
 
@@ -77,7 +79,7 @@ always_comb begin
         // state transitions
         if (valid_i) begin
           state_d = StWaitForByte3;
-          cur_operand_d = data_i[7:0];
+          cur_operand_d[7:0] = data_i;
         end
       end
 
@@ -96,27 +98,22 @@ always_comb begin
         bsg_valid_l = 1'b0;
 
         // state transitions
-        if (valid_i) begin
-            state_d = StAdd0;
-            cur_operand_d = '0;
-            cur_operand_d[31:24] = data_i;
-        end
         if (bsg_valid_o) begin
-          len_cnt_d = len_cnt_q - 1;
           state_d = StDone;
-
+          bsg_opA_l = bsg_result_o;
+          len_cnt_d = len_cnt_d - 1;
         end
-
       end
 
       StDone: begin
         // outputs
 
         // state transitions
-        if (len_cnt_d === '0) begin
+        if (len_cnt_q === '0) begin
           state_d = StIdle;
           cur_operand_d = '0;
-        end else begin
+          done_l = 1'b1;
+        end else if (valid_i) begin
           state_d = StWaitForByte0;
           cur_operand_d = '0;
           cur_operand_d[31:24] = data_i;
@@ -126,18 +123,14 @@ always_comb begin
     endcase
 end
 
-// outputs: sm to alu
-assign done_o = state_q === StDone;
+
 
 // outputs: sm to bsg multiplier
 wire bsg_valid_i, bsg_ready_o, bsg_valid_o, bsg_ready_i;
 wire [31:0] bsg_opA_i, bsg_opB_i, bsg_result_o;
-// opA is current accumulating result, opB is new number to be multiplied
-assign bsg_opB_i = cur_operand_q;
-assign bsg_valid_i = bsg_valid_l;
-assign bsg_ready_i = bsg_ready_l;
 
-bsg_imul_iterative  #(.width_p(32)) (
+
+bsg_imul_iterative #(.width_p(32)) bsg_imul_inst (
   .clk_i(clk_i)
   ,.reset_i(rst_i)
 
@@ -152,9 +145,18 @@ bsg_imul_iterative  #(.width_p(32)) (
 
   ,.v_o(bsg_valid_o)            // valid_o
   ,.yumi_i(bsg_ready_i)         // ready_i (?)
-  ,.result_o(bsg_opA_i)         // output [width_p-1: 0]
+  ,.result_o(bsg_result_o)         // output [width_p-1: 0]
 );
 
-assign result_o = bsg_opA_i;
+// opA is current accumulating result, opB is new number to be multiplied
+assign bsg_opB_i = cur_operand_q;
+assign bsg_opA_i = bsg_opA_l;
+assign bsg_valid_i = bsg_valid_l;
+assign bsg_ready_i = 1'b1;
+
+// outputs: sm to alu
+assign done_o = done_l;
+assign result_o = bsg_result_o;
+assign ready_o = 1'b1;
 
 endmodule

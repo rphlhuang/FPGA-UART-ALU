@@ -10,7 +10,8 @@ module uart_sm #(parameter int datawidth_p = 8)(
   output tx_valid_o,
   input tx_ready_i,
 
-  input done_i,
+  input adder_done_i,
+  input mul_done_i,
   input [31:0] adder_result_i,
   input [31:0] mul_result_i,
   output start_add_o,
@@ -37,6 +38,16 @@ always_comb begin
   else if (cur_opcode_q === 8'h11) result_l = mul_result_i;
   else if (cur_opcode_q === 8'h12) result_l = '1; // change later
 end
+
+// done mux
+logic done_l;
+always_comb begin
+  done_l = 1'b0;
+  if (cur_opcode_q === 8'h10) done_l = adder_done_i;
+  else if (cur_opcode_q === 8'h11) done_l = mul_done_i;
+  else if (cur_opcode_q === 8'h12) done_l = 1'b0; // change later
+end
+
 
 // state machine
 always_ff @( posedge clk_i ) begin : ff_state_machine
@@ -139,7 +150,7 @@ always_comb begin : comb_state_machine
       tx_valid_d = 1'b0;
       start_d = 1'b0;
       // state transition
-      if (done_i && tx_ready_i) begin
+      if (done_l && tx_ready_i) begin
         state_d = StTransmit0;
         rx_ready_d = 1'b0;
         tx_valid_d = 1'b1;

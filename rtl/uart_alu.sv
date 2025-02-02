@@ -34,7 +34,8 @@ uart_sm #(.datawidth_p(datawidth_p)) uart_sm_inst (
   .tx_ready_i(tx_ready_w),
   .tx_valid_o(tx_valid_w),
 
-  .done_i(adder_done_w | mul_done_w),
+  .adder_done_i(adder_done_w),
+  .mul_done_i(mul_done_w),
   .start_add_o(start_add_w),
   .start_mul_o(start_mul_w),
   .start_div_o(start_div_w),
@@ -59,7 +60,7 @@ adder #(.datawidth_p(8)) adder_inst (
   .result_o(adder_result_w)
 );
 
-multiplier #(.datawidth_p(8)) mul_inst (
+multiplier #() mul_inst (
   .clk_i(clk_i),
   .rst_i(rst_i),
 
