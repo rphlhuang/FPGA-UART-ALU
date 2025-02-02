@@ -27,6 +27,7 @@ module uart_runner;
   assign prescale_w = (CLK_FREQ_HZ) / (BAUD_RATE * 8);
   /* verilator lint_on WIDTHTRUNC */
 
+  // stimulus generator: tx instance
   uart_tx #(.DATA_WIDTH(8)) model_tx_inst (
     .clk(clk_i),
     .rst(rst_i),
@@ -45,12 +46,37 @@ module uart_runner;
     .prescale(prescale_w) // input, [15:0]
   );
 
+  // output decoder: rx instance
+  wire [7:0] rx_data_o;
+  wire rx_valid_o;
+  uart_rx #(.DATA_WIDTH(8)) rx_inst (
+    .clk(clk_i),
+    .rst(rst_i),
+
+    // AXI Stream Interface (serial to parallel, what we work with on FPGA)
+    .m_axis_tdata(rx_data_o), // output, [DATA_WIDTH-1:0]
+    .m_axis_tvalid(rx_valid_o), // output
+    .m_axis_tready(1'b1), // input
+
+    // UART Interface (what the FPGA is recieving, serially)
+    .rxd(tx_o), // input
+
+    // Status
+    .busy(), // output
+    .overrun_error(), // output
+    .frame_error(), // output
+
+    .prescale(prescale_w) // input, [15:0]
+  );
+
   // DUT
   uart_alu #(.datawidth_p(8)) dut (.rx_i(rx_i), .tx_o(tx_o), .clk_i(clk_i), .rst_i(rst_i));
 
   // asks
   task automatic reset;
     @(negedge clk_i);
+    tx_valid_i = 1'b0;
+    tx_stim_i = '0;
     rst_i = 1;
     @(negedge clk_i);
     rst_i = 0;
@@ -73,7 +99,7 @@ module uart_runner;
 
   task automatic send_packet(
     input logic [7:0] opcode,
-    input logic [7:0] data [],
+    input logic [31:0] data [],
     input logic [15:0] length
   );
     // header
@@ -84,8 +110,27 @@ module uart_runner;
 
     // data
     for (int i = 0; i < data.size(); i++) begin
-      send_byte(data[i]);
+      send_byte(data[i][31:24]);
+      send_byte(data[i][23:16]);
+      send_byte(data[i][15:8]);
+      send_byte(data[i][7:0]);
     end
   endtask
+
+  task automatic wait_for_response(output logic [31:0] response);
+    logic [7:0] b0, b1, b2, b3;
+    $display("Waiting for rx_o...");
+    // big-endian: read MSB first
+    @(posedge rx_valid_o);
+    b3 = rx_data_o;
+    @(posedge rx_valid_o);
+    b2 = rx_data_o;
+    @(posedge rx_valid_o);
+    b1 = rx_data_o;
+    @(posedge rx_valid_o);
+    b0 = rx_data_o;
+    response = {b3, b2, b1, b0};
+  endtask
+
 
 endmodule
