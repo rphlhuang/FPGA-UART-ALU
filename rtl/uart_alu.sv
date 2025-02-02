@@ -34,12 +34,12 @@ uart_sm #(.datawidth_p(datawidth_p)) uart_sm_inst (
   .tx_ready_i(tx_ready_w),
   .tx_valid_o(tx_valid_w),
 
-  .done_i(adder_done_w),
+  .done_i(adder_done_w | mul_done_w),
   .start_add_o(start_add_w),
   .start_mul_o(start_mul_w),
   .start_div_o(start_div_w),
   .adder_result_i(adder_result_w),
-  .mul_result_i(),
+  .mul_result_i(mul_result_w),
   .len_o(len_w)
 );
 
@@ -59,6 +59,20 @@ adder #(.datawidth_p(8)) adder_inst (
   .result_o(adder_result_w)
 );
 
+multiplier #(.datawidth_p(8)) mul_inst (
+  .clk_i(clk_i),
+  .rst_i(rst_i),
+
+  .valid_i(rx_valid_w),
+  .data_i(rx_data_w),
+  .ready_o(rx_ready_mul_w),
+
+  .len_i(len_w),
+  .start_i(start_mul_w),
+  .done_o(mul_done_w),
+  .result_o(mul_result_w)
+);
+
 
 // UART handlers
 uart_rx #(.DATA_WIDTH(datawidth_p)) rx_inst (
@@ -68,7 +82,7 @@ uart_rx #(.DATA_WIDTH(datawidth_p)) rx_inst (
   // AXI Stream Interface (serial to parallel, what we work with on FPGA)
   .m_axis_tdata(rx_data_w), // output, [DATA_WIDTH-1:0]
   .m_axis_tvalid(rx_valid_w), // output
-  .m_axis_tready(rx_ready_adder_w | rx_ready_sm_w), // input
+  .m_axis_tready(rx_ready_adder_w | rx_ready_sm_w | rx_ready_mul_w), // input
 
   // UART Interface (what the FPGA is recieving, serially)
   .rxd(rx_i), // input
