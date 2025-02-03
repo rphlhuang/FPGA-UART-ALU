@@ -41,11 +41,11 @@ end
 
 // done mux
 logic done_l;
-always_comb begin
-  done_l = 1'b0;
-  if (cur_opcode_q === 8'h10) done_l = adder_done_i;
-  else if (cur_opcode_q === 8'h11) done_l = mul_done_i;
-  else if (cur_opcode_q === 8'h12) done_l = 1'b0; // change later
+always_ff @(posedge clk_i) begin
+  if (cur_opcode_q === 8'h10) done_l <= adder_done_i;
+  else if (cur_opcode_q === 8'h11) done_l <= mul_done_i;
+  else if (cur_opcode_q === 8'h12) done_l <= 1'b0; // change later
+  else done_l <= 1'b0;
 end
 
 

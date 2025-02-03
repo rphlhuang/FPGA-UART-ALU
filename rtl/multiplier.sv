@@ -17,18 +17,22 @@ typedef enum logic [2:0] {StIdle, StWaitForByte0, StWaitForByte1, StWaitForByte2
 state_e state_d, state_q;
 logic [31:0] cur_operand_d, cur_operand_q;
 logic [15:0] len_cnt_d, len_cnt_q;
-logic bsg_valid_l, done_l;
-logic [31:0] bsg_opA_l;
+logic bsg_valid_i_d, bsg_valid_i_q;
+logic [31:0] bsg_opA_d, bsg_opA_q;
 
 always_ff @( posedge clk_i ) begin : ff_mul
   if (rst_i) begin
     state_q <= StIdle;
     cur_operand_q <= '0;
     len_cnt_q <= '0;
+    bsg_opA_q <= 32'd1;
+    bsg_valid_i_q <= 1'b0;
   end else begin
     state_q <= state_d;
     cur_operand_q <= cur_operand_d;
     len_cnt_q <= len_cnt_d;
+    bsg_opA_q <= bsg_opA_d;
+    bsg_valid_i_q <= bsg_valid_i_d;
   end
 end
 
@@ -36,6 +40,8 @@ always_comb begin
     state_d = state_q;
     cur_operand_d = cur_operand_q;
     len_cnt_d = len_cnt_q;
+    bsg_opA_d = bsg_opA_q;
+    bsg_valid_i_d = bsg_valid_i_q;
 
     case (state_q)
 
@@ -48,8 +54,7 @@ always_comb begin
           cur_operand_d = '0;
           cur_operand_d[31:24] = data_i;
           len_cnt_d = len_i;
-          bsg_opA_l = 32'd1;
-          done_l = 1'b0;
+          bsg_opA_d = 32'd1;
         end
       end
 
@@ -88,19 +93,19 @@ always_comb begin
 
         // state transitions
         if (bsg_ready_o) begin
-          bsg_valid_l = 1'b1;
+          bsg_valid_i_d = 1'b1;
           state_d = StWaitForMul;
         end
       end
 
       StWaitForMul: begin
         // outputs
-        bsg_valid_l = 1'b0;
+        bsg_valid_i_d = 1'b0;
 
         // state transitions
         if (bsg_valid_o) begin
           state_d = StDone;
-          bsg_opA_l = bsg_result_o;
+          bsg_opA_d = bsg_result_o;
           len_cnt_d = len_cnt_d - 1;
         end
       end
@@ -112,7 +117,6 @@ always_comb begin
         if (len_cnt_q === '0) begin
           state_d = StIdle;
           cur_operand_d = '0;
-          done_l = 1'b1;
         end else if (valid_i) begin
           state_d = StWaitForByte0;
           cur_operand_d = '0;
@@ -150,12 +154,12 @@ bsg_imul_iterative #(.width_p(32)) bsg_imul_inst (
 
 // opA is current accumulating result, opB is new number to be multiplied
 assign bsg_opB_i = cur_operand_q;
-assign bsg_opA_i = bsg_opA_l;
-assign bsg_valid_i = bsg_valid_l;
+assign bsg_opA_i = bsg_opA_q;
+assign bsg_valid_i = bsg_valid_i_q;
 assign bsg_ready_i = 1'b1;
 
 // outputs: sm to alu
-assign done_o = done_l;
+assign done_o = (state_q === StDone) && (len_cnt_q === '0);
 assign result_o = bsg_result_o;
 assign ready_o = 1'b1;
 

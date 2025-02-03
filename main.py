@@ -73,7 +73,7 @@ def mul32(operands):
     for op in operands:
         payload.extend(op.to_bytes(4, 'big'))  # each operand is 4 bytes
         num_ops += 1
-    print(f"Multiplying {num_ops} integers: {operands}")
+    print(f"\n---\nMultiplying {num_ops} integers: {operands}")
     send_packet(0x11, payload, num_ops)
 
 def div32(numerator, denominator):
@@ -90,6 +90,15 @@ time.sleep(0.01)
 add32([200, 93])
 time.sleep(0.01)
 add32([0x01, 0x02, 0x03, 0x4, 0x5])
+
+mul32([0x01, 0x02])
+time.sleep(0.01)
+mul32([0x03, 0x04])
+time.sleep(0.01)
+mul32([200, 93])
+time.sleep(0.01)
+mul32([0x01, 0x02, 0x03, 0x4, 0x5])
+
 
 
 

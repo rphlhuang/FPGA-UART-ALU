@@ -107,11 +107,11 @@ module uart_tb (
       uart_runner.send_packet(cur_opcode, test_data, {12'b0, cur_length});
       uart_runner.wait_for_response(result);
       if (result === expected) begin
-        $display("PASS: Result = ", result, ", Expected = ", expected);
+        $display("\033[0;32mPASS:\033[0m Result = ", result, ", Expected = ", expected);
         $display();
       end else begin
         error_o = 1;
-        $display("FAIL: Result = ", result, ", Expected = ", expected);
+        $display("\033[0;31mFAIL:\033[0m Result = ", result, ", Expected = ", expected);
         $display();
       end
     end
