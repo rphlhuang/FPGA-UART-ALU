@@ -18,10 +18,10 @@ assign prescale_w = (CLK_FREQ_HZ) / (BAUD_RATE * 8);
 
 // State Machine
 wire [datawidth_p-1:0] rx_data_w, tx_data_w;
-wire rx_ready_sm_w, rx_ready_adder_w, rx_ready_mul_w, rx_valid_w, tx_ready_w, tx_valid_w;
-wire adder_done_w, mul_done_w, start_add_w, start_mul_w, start_div_w;
+wire rx_ready_sm_w, rx_ready_adder_w, rx_ready_mul_w, rx_ready_div_w, rx_valid_w, tx_ready_w, tx_valid_w;
+wire adder_done_w, mul_done_w, div_done_w, start_add_w, start_mul_w, start_div_w;
 wire [15:0] len_w;
-wire [31:0] adder_result_w, mul_result_w;
+wire [31:0] adder_result_w, mul_result_w, div_result_w;
 uart_sm #(.datawidth_p(datawidth_p)) uart_sm_inst (
   .clk_i(clk_i),
   .rst_i(rst_i),
@@ -36,11 +36,16 @@ uart_sm #(.datawidth_p(datawidth_p)) uart_sm_inst (
 
   .adder_done_i(adder_done_w),
   .mul_done_i(mul_done_w),
+  .div_done_i(div_done_w),
+
   .start_add_o(start_add_w),
   .start_mul_o(start_mul_w),
   .start_div_o(start_div_w),
+
   .adder_result_i(adder_result_w),
   .mul_result_i(mul_result_w),
+  .div_result_i(div_result_w),
+
   .len_o(len_w)
 );
 
@@ -74,6 +79,20 @@ multiplier #() mul_inst (
   .result_o(mul_result_w)
 );
 
+divider #() div_inst (
+  .clk_i(clk_i),
+  .rst_i(rst_i),
+
+  .valid_i(rx_valid_w),
+  .data_i(rx_data_w),
+  .ready_o(rx_ready_div_w),
+
+  .len_i(len_w),
+  .start_i(start_div_w),
+  .done_o(div_done_w),
+  .result_o(div_result_w)
+);
+
 
 // UART handlers
 uart_rx #(.DATA_WIDTH(datawidth_p)) rx_inst (
@@ -83,7 +102,7 @@ uart_rx #(.DATA_WIDTH(datawidth_p)) rx_inst (
   // AXI Stream Interface (serial to parallel, what we work with on FPGA)
   .m_axis_tdata(rx_data_w), // output, [DATA_WIDTH-1:0]
   .m_axis_tvalid(rx_valid_w), // output
-  .m_axis_tready(rx_ready_adder_w | rx_ready_sm_w | rx_ready_mul_w), // input
+  .m_axis_tready(rx_ready_adder_w | rx_ready_sm_w | rx_ready_mul_w | rx_ready_div_w), // input
 
   // UART Interface (what the FPGA is recieving, serially)
   .rxd(rx_i), // input

@@ -8,3 +8,4 @@ rtl/uart_alu.sv
 rtl/uart_sm.sv
 rtl/adder.sv
 rtl/multiplier.sv
+rtl/divider.sv

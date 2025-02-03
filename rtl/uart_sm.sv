@@ -12,8 +12,10 @@ module uart_sm #(parameter int datawidth_p = 8)(
 
   input adder_done_i,
   input mul_done_i,
+  input div_done_i,
   input [31:0] adder_result_i,
   input [31:0] mul_result_i,
+  input [31:0] div_result_i,
   output start_add_o,
   output start_mul_o,
   output start_div_o,
@@ -21,7 +23,8 @@ module uart_sm #(parameter int datawidth_p = 8)(
 );
 
 // state enum
-typedef enum logic [3:0] {StIdle, StOpCode, StReserved, StLenLSB, StLenMSB, StWaitForFinish, StTransmit0, StTransmit1, StTransmit2, StTransmit3} state_e;state_e state_d, state_q;
+typedef enum logic [3:0] {StIdle, StOpCode, StReserved, StLenLSB, StLenMSB, StWaitForFinish, StTransmit0, StTransmit1, StTransmit2, StTransmit3} state_e;
+state_e state_d, state_q;
 
 // ffs
 logic [datawidth_p-1:0] tx_data_d, tx_data_q;
@@ -36,7 +39,7 @@ always_comb begin
   result_l = 'x;
   if (cur_opcode_q === 8'h10) result_l = adder_result_i;
   else if (cur_opcode_q === 8'h11) result_l = mul_result_i;
-  else if (cur_opcode_q === 8'h12) result_l = '1; // change later
+  else if (cur_opcode_q === 8'h12) result_l = div_result_i; // change later
 end
 
 // done mux
@@ -44,7 +47,7 @@ logic done_l;
 always_ff @(posedge clk_i) begin
   if (cur_opcode_q === 8'h10) done_l <= adder_done_i;
   else if (cur_opcode_q === 8'h11) done_l <= mul_done_i;
-  else if (cur_opcode_q === 8'h12) done_l <= 1'b0; // change later
+  else if (cur_opcode_q === 8'h12) done_l <= div_done_i; // change later
   else done_l <= 1'b0;
 end
 
