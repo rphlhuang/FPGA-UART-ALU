@@ -5,13 +5,16 @@ This project implements an FPGA ALU that can perform 32-bit addition (`add32()`)
 
 ## Dependencies
 
+IPs (git submodules, run `git submodule update --init --recursive` to load after cloning):
+
+* <https://github.com/alexforencich/verilog-uart>
+* <https://github.com/bespoke-silicon-group/basejump_stl>
+
 Toolchain:
+
 * <https://github.com/YosysHQ/oss-cad-suite-build/releases>
 * <https://github.com/zachjs/sv2v/releases>
 
-IPs (git submodules):
-* <https://github.com/alexforencich/verilog-uart>
-* <https://github.com/bespoke-silicon-group/basejump_stl>
 
 ## Usage
 This project is primarily built to target the iCEBreaker v1.0 FPGA. Run synthesis, implementation, place and route, and program the board by running `make icestorm_icebreaker_program`.
